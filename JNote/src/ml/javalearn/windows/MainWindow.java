@@ -6,22 +6,24 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class MainWindow extends JFrame {
 
-    JList jList;
+    JList<String> jList;
+    JScrollPane scrollList;
     JButton save;
     JButton newNote;
     JButton cancelChanges;
-    JTextArea textArea;
+    JTextArea textArea = new JTextArea();
     JScrollPane scrollPane;
-    JTextField nameNote;
+    JTextField nameNote = new JTextField(50);
     JPanel contentPanel;
-    String[] arrayForJList;
-    String getNameNote = nameNote.getText();
-    FileWriter fileCreator = new FileWriter(getNameNote + ".txt");
+    String[] arrayForJList = new String[10];
+    String getNameNote;
+    String getTextNote;
 
-    public MainWindow() throws IOException {
+    public MainWindow() {
         init();
     }
 
@@ -40,11 +42,14 @@ public class MainWindow extends JFrame {
     }
 
     private void setJList() {
-        jList = new JList();
-        jList.setBounds(10, 40, 145, 850);
-        jList.setBorder(new LineBorder(Color.BLACK));
+        jList = new JList<String>(arrayForJList);
+        scrollList = new JScrollPane(jList);
 
-        contentPanel.add(jList);
+        scrollList.setBounds(10, 40, 145, 850);
+        scrollList.setBorder(new LineBorder(Color.BLACK));
+        scrollList.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        contentPanel.add(scrollList);
     }
 
     private void setButtons() {
@@ -66,16 +71,59 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    ();
+                    createNewNote();
+                    JOptionPane.showMessageDialog(null ,"File create successfully", "Information dialog", JOptionPane.INFORMATION_MESSAGE);
+
+                    getFilesForJList();
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error (Note not create successfully)", "Information dialog", JOptionPane.ERROR_MESSAGE);
                 }
+            }
+        });
+
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    fileWriter();
+                    JOptionPane.showMessageDialog(null, "Note saved successfully", "Information dialog", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Error (Note not save successfully", "Information dialog", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        cancelChanges.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                textArea.setText("Start writing...");
+                nameNote.setText("Untitled");
             }
         });
     }
 
+    private void createNewNote() throws IOException {
+        getNameNote = nameNote.getText();
+
+        FileWriter fileWriter = new FileWriter(getNameNote + ".txt");
+
+        fileWriter.flush();
+        fileWriter.close();
+    }
+
+    private void fileWriter() throws IOException {
+        getNameNote = nameNote.getText();
+        FileWriter fileWriter = new FileWriter(getNameNote + ".txt");
+
+        getTextNote = textArea.getText();
+        fileWriter.write(getTextNote);
+
+        fileWriter.flush();
+        fileWriter.close();
+
+    }
+
     private void setScrollPane() {
-        textArea = new JTextArea();
         textArea.setText("Start writing...");
         textArea.setFont(new Font("Arial", Font.PLAIN, 14));
         scrollPane = new JScrollPane(textArea); //init scroll pane and add in text area
@@ -86,8 +134,6 @@ public class MainWindow extends JFrame {
     }
 
     private void setTextField() {
-        nameNote = new JTextField(50); //init text field with note name
-
         nameNote.setBounds(165, 10, 410, 20);
         nameNote.setText("Untitled");
         nameNote.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -107,24 +153,6 @@ public class MainWindow extends JFrame {
         });
     }
 
-    private void creatorFiles() throws IOException {
-
-//        PrintWriter fileCreator = new PrintWriter(filename + ".txt", "UTF-8");
-
-        fileCreator.flush();
-        fileCreator.close();
-    }
-
-    private void writerFiles() throws IOException {
-        String getTextNote = textArea.getText();
-
-        fileCreator.write(getTextNote);
-
-        fileCreator.flush();
-        fileCreator.close();
-    }
-
-
     private void init() {
         settingsFrame();
         setContentPanel();
@@ -132,7 +160,6 @@ public class MainWindow extends JFrame {
         setButtons();
         setTextField();
         setScrollPane();
-        getFilesForJList();
         actionListeners();
     }
 
@@ -143,11 +170,7 @@ public class MainWindow extends JFrame {
 
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                try {
-                    new MainWindow();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                new MainWindow();
             }
         });
     }
