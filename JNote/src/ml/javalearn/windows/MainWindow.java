@@ -2,11 +2,15 @@ package ml.javalearn.windows;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Scanner;
 
 public class MainWindow extends JFrame {
 
@@ -19,7 +23,7 @@ public class MainWindow extends JFrame {
     JScrollPane scrollPane;
     JTextField nameNote = new JTextField(50);
     JPanel contentPanel;
-    String[] arrayForJList = new String[10];
+    String[] arrayForJList;
     String getNameNote;
     String getTextNote;
 
@@ -74,7 +78,7 @@ public class MainWindow extends JFrame {
                     createNewNote();
                     JOptionPane.showMessageDialog(null ,"File create successfully", "Information dialog", JOptionPane.INFORMATION_MESSAGE);
 
-                    getFilesForJList();
+                    updateJList();
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, "Error (Note not create successfully)", "Information dialog", JOptionPane.ERROR_MESSAGE);
                 }
@@ -87,6 +91,8 @@ public class MainWindow extends JFrame {
                 try {
                     fileWriter();
                     JOptionPane.showMessageDialog(null, "Note saved successfully", "Information dialog", JOptionPane.INFORMATION_MESSAGE);
+
+                    updateJList();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "Error (Note not save successfully", "Information dialog", JOptionPane.ERROR_MESSAGE);
                 }
@@ -96,8 +102,23 @@ public class MainWindow extends JFrame {
         cancelChanges.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                textArea.setText("Start writing...");
-                nameNote.setText("Untitled");
+                String setTitle = arrayForJList[jList.getSelectedIndex()];
+                File file = new File(setTitle);
+                System.out.println(setTitle);
+                System.gc();
+
+
+                if (file.delete()) {
+                    System.gc();
+                    updateJList();
+                    System.out.println("File deleted");
+                }
+
+//                if (file.delete()) {
+//                    System.out.println(file.getName() + " deleted");
+//                } else {
+//                    System.out.println(file.getName() + " not deleted");
+//                }
             }
         });
     }
@@ -153,6 +174,47 @@ public class MainWindow extends JFrame {
         });
     }
 
+    private void updateJList() {
+        getFilesForJList();
+        DefaultListModel model = new DefaultListModel();
+        for (int i = 0; i < arrayForJList.length; i++) {
+            model.add(i, arrayForJList[i]);
+        }
+        jList.setModel(model);
+    }
+
+    private void listenerForList() {
+        jList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (arrayForJList.length > 0) {
+                    String setTitle = arrayForJList[jList.getSelectedIndex()];
+                    nameNote.setText(setTitle);
+
+                    try {
+                        getTextFile(setTitle);
+                    } catch (FileNotFoundException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private void getTextFile(String setTitle) throws FileNotFoundException {
+        File file = new File(setTitle);
+
+        String txt = "";
+
+        Scanner scanner = new Scanner(file);
+
+        while (scanner.hasNext()) {
+            txt += scanner.nextLine() + "\n";
+        }
+
+        textArea.setText(txt);
+    }
+
     private void init() {
         settingsFrame();
         setContentPanel();
@@ -161,6 +223,8 @@ public class MainWindow extends JFrame {
         setTextField();
         setScrollPane();
         actionListeners();
+        listenerForList();
+        updateJList();
     }
 
     public static void main(String[] args) {
