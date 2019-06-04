@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.LayerUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,6 +27,7 @@ public class MainWindow extends JFrame {
     String[] arrayForJList;
     String getNameNote;
     String getTextNote;
+    JLabel back = new JLabel(new ImageIcon("background.png"));
 
     public MainWindow() {
         init();
@@ -34,14 +36,21 @@ public class MainWindow extends JFrame {
     private void settingsFrame() {
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         setTitle("JNote");
-        setSize(new Dimension(600, 940));
+        setSize(new Dimension(600, 1035));
+        setResizable(false);
         setVisible(true);
+    }
+
+    private void setLook() {
+
+//        newNote.setBackground();
     }
 
     private void setContentPanel() {
         contentPanel = new JPanel();
 
         contentPanel.setLayout(null);
+//        contentPanel.add(new PaintPanel());
         getContentPane().add(contentPanel);
     }
 
@@ -60,6 +69,8 @@ public class MainWindow extends JFrame {
         save = new JButton("✓"); //init save button
         cancelChanges = new JButton("✘"); //init delete button
         newNote = new JButton("➕"); //init create new note button
+
+        save.setBackground(new Color(70, 117, 68));
 
         save.setBounds(10, 10, 45, 20); //save note button
         cancelChanges.setBounds(60  , 10, 45, 20);
@@ -105,20 +116,15 @@ public class MainWindow extends JFrame {
                 String setTitle = arrayForJList[jList.getSelectedIndex()];
                 File file = new File(setTitle);
                 System.out.println(setTitle);
-                System.gc();
-
 
                 if (file.delete()) {
                     System.gc();
                     updateJList();
                     System.out.println("File deleted");
+                } else {
+                    System.gc();
+                    System.out.println("error");
                 }
-
-//                if (file.delete()) {
-//                    System.out.println(file.getName() + " deleted");
-//                } else {
-//                    System.out.println(file.getName() + " not deleted");
-//                }
             }
         });
     }
@@ -215,6 +221,12 @@ public class MainWindow extends JFrame {
         textArea.setText(txt);
     }
 
+    private void setBackground() {
+        back.setBounds(-10, 0, 600, 1000);
+
+        contentPanel.add(back);
+    }
+
     private void init() {
         settingsFrame();
         setContentPanel();
@@ -225,6 +237,7 @@ public class MainWindow extends JFrame {
         actionListeners();
         listenerForList();
         updateJList();
+        setBackground();
     }
 
     public static void main(String[] args) {
