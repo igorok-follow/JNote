@@ -8,6 +8,8 @@ import javax.swing.plaf.LayerUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -113,17 +115,14 @@ public class MainWindow extends JFrame {
         cancelChanges.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.gc();
                 String setTitle = arrayForJList[jList.getSelectedIndex()];
                 File file = new File(setTitle);
                 System.out.println(setTitle);
 
                 if (file.delete()) {
-                    System.gc();
                     updateJList();
                     System.out.println("File deleted");
-                } else {
-                    System.gc();
-                    System.out.println("error");
                 }
             }
         });
@@ -190,9 +189,9 @@ public class MainWindow extends JFrame {
     }
 
     private void listenerForList() {
-        jList.addListSelectionListener(new ListSelectionListener() {
+        jList.addMouseListener(new MouseAdapter() {
             @Override
-            public void valueChanged(ListSelectionEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 if (arrayForJList.length > 0) {
                     String setTitle = arrayForJList[jList.getSelectedIndex()];
                     nameNote.setText(setTitle);
