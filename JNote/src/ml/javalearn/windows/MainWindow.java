@@ -2,18 +2,20 @@ package ml.javalearn.windows;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.LayerUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Scanner;
+
+import ml.javalearn.notifications.Notification;
+import ml.javalearn.Thread.Threads;
 
 public class MainWindow extends JFrame {
 
@@ -30,6 +32,12 @@ public class MainWindow extends JFrame {
     String getNameNote;
     String getTextNote;
     JLabel back = new JLabel(new ImageIcon("background.png"));
+    JTextField field1;
+    JTextField field2;
+    JTextField field3;
+    JLabel label1;
+    JButton setNotificate;
+    String[] getTextField = new String[5];
 
     public MainWindow() {
         init();
@@ -43,9 +51,19 @@ public class MainWindow extends JFrame {
         setVisible(true);
     }
 
-    private void setLook() {
+    private void setLabelsNotifications() {
+        label1 = new JLabel("Minutes/Hours/Day/Month/Year");
+        field1 = new JTextField(20);
 
-//        newNote.setBackground();
+        label1.setBounds(25, 860, 300, 100);
+        label1.setFont(new Font("Arial", Font.PLAIN, 14));
+        label1.setBackground(Color.WHITE);
+        field1.setBounds(235, 893, 200, 30);
+        setNotificate.setBounds(445, 893, 120, 30);
+
+        contentPanel.add(field1);
+        contentPanel.add(label1);
+        contentPanel.add(setNotificate);
     }
 
     private void setContentPanel() {
@@ -71,6 +89,7 @@ public class MainWindow extends JFrame {
         save = new JButton("✓"); //init save button
         cancelChanges = new JButton("✘"); //init delete button
         newNote = new JButton("➕"); //init create new note button
+        setNotificate = new JButton("Set notification");
 
         save.setBackground(new Color(70, 117, 68));
 
@@ -125,6 +144,12 @@ public class MainWindow extends JFrame {
                     System.out.println("File deleted");
                 }
             }
+        });
+
+        setNotificate.addActionListener(e -> {
+            setTimeNotificate();
+            Threads threads = new Threads(this);
+            threads.start();
         });
     }
 
@@ -226,6 +251,47 @@ public class MainWindow extends JFrame {
         contentPanel.add(back);
     }
 
+    private void test() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:HH dd-MM-yyyy");
+        String date = simpleDateFormat.format(new Date());
+        System.out.println(date);
+    }
+
+
+
+    public String setTimeNotificate() {
+        String string = field1.getText();
+        ArrayList <String> arrayList = new ArrayList<String>(Arrays.asList(string.split("/", 5)));
+
+        String s1 = arrayList.get(0);
+        String s2 = arrayList.get(1);
+        String s3 = arrayList.get(2);
+        String s4 = arrayList.get(3);
+        String s5 = arrayList.get(4);
+
+        System.out.println(s1 + ":" + s2 + " " + s3 + "-" + s4 + "-" + s5);
+
+        return s1 + ":" + s2 + " " + s3 + "-" + s4 + "-" + s5;
+
+//        return arrayList.toString();
+    }
+
+    public String timeNotificate() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:HH dd-MM-yyyy");
+        return simpleDateFormat.format(new Date());
+    }
+
+
+
+    public void checkCurrentAndSettedTimeNotification() {
+        if (timeNotificate().equals(setTimeNotificate())) {
+            Notification notification = new Notification();
+            notification.showInfoNotification("Ахтунг епта", "Ты просил уведомить тебя в это время. И вот, я тут!");
+        } else {
+            System.out.println("Error");
+        }
+    }
+
     private void init() {
         settingsFrame();
         setContentPanel();
@@ -236,8 +302,12 @@ public class MainWindow extends JFrame {
         actionListeners();
         listenerForList();
         updateJList();
+        setLabelsNotifications();
         setBackground();
+        test();
     }
+
+
 
     public static void main(String[] args) {
         try {
